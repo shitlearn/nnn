@@ -75,7 +75,7 @@ jobs:
             echo "########## clang-tidy-11 ##########"
             clang-tidy-11 src/* -- -I/usr/include -I/usr/include/ncursesw
             echo "########## shellcheck ##########"
-            find plugins/ -type f -not -name "*.md" -exec shellcheck -e SC1090,SC2230 {} +
+            find plugins/ -type f -not -name "*.md" -exec shellcheck {} +
 
   package-and-publish:
     machine: true
@@ -101,7 +101,7 @@ jobs:
       - run:
           name: "publish to GitHub"
           command: |
-            go get github.com/tcnksm/ghr
+            go install github.com/tcnksm/ghr@latest
             ghr -t ${GITHUB_API_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -replace ${CIRCLE_TAG} ./dist/
 
 workflows:

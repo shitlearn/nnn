@@ -1,4 +1,4 @@
-.Dd Apr 26, 2022
+.Dd Jul 26, 2022
 .Dt NNN 1
 .Os
 .Sh NAME
@@ -52,6 +52,9 @@ supports the following options:
 .Pp
 .Fl "b key"
         specify bookmark key to open
+.Pp
+.Fl B
+        use bsdtar for archives (default: atool)
 .Pp
 .Fl c
         indicates that the opener is a cli-only opener (overrides -e)
@@ -213,7 +216,7 @@ Special keys at filter prompt:
 -------- + ---------------------------------------
  ^char   | Usual keybind functionality
  Esc     | Exit filter prompt but skip dir refresh
- Alt+Esc | Exit filter prompt and refresh dir
+ Alt+Esc | Unfilter, quit context
 -------- + ---------------------------------------
 .Ed
 .Pp
@@ -309,7 +312,7 @@ There are two ways to search and list:
 .Pp
 File paths must be NUL-separated ('\\0'). Paths and can be relative to the
 current directory or absolute. Invalid paths in the input are ignored. Input
-limit is 65,536 paths or 256 MiB of data.
+processing limit is 16,384 paths or 64 MiB (max_paths x max_path_len) of data.
 .Pp
 To list the input stream, start
 .Nm
@@ -404,7 +407,7 @@ separated by \fI;\fR:
 .Ed
 .Pp
     To assign keys to arbitrary non-background cli commands and invoke like
-    plugins, add \fI!\fR before the command.
+    plugins, add \fB!\fR before the command.
 .Bd -literal
     export NNN_PLUG='x:!chmod +x $nnn;g:!git log;s:!smplayer $nnn'
 

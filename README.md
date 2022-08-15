@@ -80,7 +80,7 @@ Runs on the Pi, [Termux](https://www.youtube.com/embed/AbaauM7gUJw) (Android), L
   - Preview hovered files in FIFO-based previewer
   - Open with desktop opener or specify a custom opener
   - File-specific colors (or minimal _dirs in context color_)
-  - Icons or Emojis support (customize and compile-in)
+  - Icons and Emojis support (customize and compile-in)
   - Plugin for image, video and audio thumbnails
   - Create, list, extract (to), mount (FUSE based) archives
   - Option to open all text files in `$EDITOR`
@@ -160,4 +160,4 @@ Don't memorize! Arrows, <kbd>/</kbd>, <kbd>q</kbd> suffice. <kbd>Tab</kbd> creat
 - [Sijmen J. Mulder](https://github.com/sjmulder)
 - and other contributors
 
-Visit the [ToDo list](https://github.com/jarun/nnn/issues/1416) to contribute or see the features in progress.
+Visit the [ToDo list](https://github.com/jarun/nnn/issues/1454) to contribute or see the features in progress.

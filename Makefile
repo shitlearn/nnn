@@ -95,15 +95,18 @@ ifeq ($(strip $(O_CTX8)),1)
 endif
 
 ifeq ($(strip $(O_ICONS)),1)
-	CPPFLAGS += -DICONS
+	ICONS_INCLUDE = icons-generated-icons-in-term.h
+	CPPFLAGS += -DICONS_IN_TERM -DICONS_INCLUDE=\"$(ICONS_INCLUDE)\"
 endif
 
 ifeq ($(strip $(O_NERD)),1)
-	CPPFLAGS += -DNERD
+	ICONS_INCLUDE = icons-generated-nerd.h
+	CPPFLAGS += -DNERD -DICONS_INCLUDE=\"$(ICONS_INCLUDE)\"
 endif
 
 ifeq ($(strip $(O_EMOJI)),1)
-	CPPFLAGS += -DEMOJI
+	ICONS_INCLUDE = icons-generated-emoji.h
+	CPPFLAGS += -DEMOJI -DICONS_INCLUDE=\"$(ICONS_INCLUDE)\"
 endif
 
 ifeq ($(strip $(O_QSORT)),1)
@@ -187,17 +190,17 @@ endif
 ifeq ($(strip $(O_DEBUG)),1)
 	HEADERS += src/dbg.h
 endif
-ifeq ($(strip $(O_EMOJI)),1)
-	HEADERS += src/icons.h src/icons-emoji.h
-endif
-ifeq ($(strip $(O_NERD)),1)
-	HEADERS += src/icons.h src/icons-nerdfont.h
-endif
-ifeq ($(strip $(O_ICONS)),1)
-	HEADERS += src/icons.h src/icons-in-terminal.h
-endif
 ifeq ($(strip $(O_QSORT)),1)
 	HEADERS += src/qsort.h
+endif
+ifeq ($(strip $(O_EMOJI)),1)
+	HEADERS += src/icons.h src/$(ICONS_INCLUDE)
+endif
+ifeq ($(strip $(O_NERD)),1)
+	HEADERS += src/icons.h src/$(ICONS_INCLUDE)
+endif
+ifeq ($(strip $(O_ICONS)),1)
+	HEADERS += src/icons.h src/$(ICONS_INCLUDE) src/icons-in-terminal.h
 endif
 
 all: $(BIN)
@@ -211,6 +214,10 @@ $(BIN): $(SRC) $(HEADERS) Makefile
 debug: $(BIN)
 norl: $(BIN)
 nolc: $(BIN)
+
+src/$(ICONS_INCLUDE): src/icons-hash.c src/icons.h src/icons-in-terminal.h
+	$(CC) $(CPPFLAGS) -DICONS_GENERATE -o src/icons-hash-gen src/icons-hash.c
+	./src/icons-hash-gen > $@
 
 install-desktop: $(DESKTOPFILE)
 	$(INSTALL) -m 0755 -d $(DESTDIR)$(DESKTOPPREFIX)
@@ -261,6 +268,9 @@ musl:
 	./musl-static-ubuntu.sh 1
 	rm ./musl-static-ubuntu.sh
 
+shellcheck:
+	find ./plugins/ -type f -not -name "*.md" -exec shellcheck {} +
+
 dist:
 	mkdir -p nnn-$(VERSION)
 	$(CP) -r $(DISTFILES) nnn-$(VERSION)
@@ -299,7 +309,7 @@ upload-local: sign static musl
 	    -H 'Authorization: token $(NNN_SIG_UPLOAD_TOKEN)' -H 'Content-Type: application/x-sharedlib' \
 	    --upload-file $(BIN)-nerd-static-$(VERSION).x86_64.tar.gz
 	# upload emoji compiled static binary
-	tar -zcf $(BIN)-emoji-static-$(VERSION).x86_64.tar.gz $(BIN)-icons-static
+	tar -zcf $(BIN)-emoji-static-$(VERSION).x86_64.tar.gz $(BIN)-emoji-static
 	curl -XPOST 'https://uploads.github.com/repos/jarun/nnn/releases/$(ID)/assets?name=$(BIN)-emoji-static-$(VERSION).x86_64.tar.gz' \
 	    -H 'Authorization: token $(NNN_SIG_UPLOAD_TOKEN)' -H 'Content-Type: application/x-sharedlib' \
 	    --upload-file $(BIN)-emoji-static-$(VERSION).x86_64.tar.gz
@@ -310,7 +320,7 @@ upload-local: sign static musl
 	    --upload-file $(BIN)-musl-static-$(VERSION).x86_64.tar.gz
 
 clean:
-	$(RM) -f $(BIN) nnn-$(VERSION).tar.gz *.sig $(BIN)-static $(BIN)-static-$(VERSION).x86_64.tar.gz $(BIN)-icons-static $(BIN)-icons-static-$(VERSION).x86_64.tar.gz $(BIN)-nerd-static $(BIN)-nerd-static-$(VERSION).x86_64.tar.gz $(BIN)-emoji-static $(BIN)-emoji-static-$(VERSION).x86_64.tar.gz $(BIN)-musl-static $(BIN)-musl-static-$(VERSION).x86_64.tar.gz
+	$(RM) -f $(BIN) nnn-$(VERSION).tar.gz *.sig $(BIN)-static $(BIN)-static-$(VERSION).x86_64.tar.gz $(BIN)-icons-static $(BIN)-icons-static-$(VERSION).x86_64.tar.gz $(BIN)-nerd-static $(BIN)-nerd-static-$(VERSION).x86_64.tar.gz $(BIN)-emoji-static $(BIN)-emoji-static-$(VERSION).x86_64.tar.gz $(BIN)-musl-static $(BIN)-musl-static-$(VERSION).x86_64.tar.gz src/icons-hash-gen src/icons-generated-*.h
 
 checkpatches:
 	./patches/check-patches.sh
